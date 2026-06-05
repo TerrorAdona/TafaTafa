@@ -1,303 +1,142 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>TafaTafaAI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --primary-color: #4a6cf7;
-            --primary-dark: #3a56d4;
-            --user-bg: #e3f2fd;
-            --bot-bg: #f5f5f5;
-            --border-radius: 16px;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+{% extends "base.html" %}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent page scroll */
-            font-family: var(--font-family);
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: #333;
-        }
-
-        .chat-container {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            border-radius: 0; /* Full viewport, no radius */
-            box-shadow: none;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
-            color: white;
-            padding: 20px 24px;
-            text-align: center;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 10;
-        }
-
-        .chat-header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .chat-header h1::before {
-            content: "🤖";
-            font-size: 1.5rem;
-        }
-
-        #messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            scroll-behavior: smooth;
-            background: #fafafa;
-        }
-
-        /* Hide scrollbar but keep functionality */
-        #messages::-webkit-scrollbar {
-            width: 6px;
-        }
-        #messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #messages::-webkit-scrollbar-thumb {
-            background: rgba(74, 108, 247, 0.3);
-            border-radius: 3px;
-        }
-        #messages::-webkit-scrollbar-thumb:hover {
-            background: rgba(74, 108, 247, 0.5);
-        }
-
-        .message {
-            max-width: 85%;
-            word-wrap: break-word;
-            padding: 14px 18px;
-            border-radius: var(--border-radius);
-            position: relative;
-            animation: fadeInUp 0.3s ease-out;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user {
-            background: var(--user-bg);
-            color: #0d47a1;
-            align-self: flex-end;
-            border-bottom-right-radius: 6px;
-        }
-
-        .bot {
-            background: var(--bot-bg);
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 6px;
-        }
-
-        .message b {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            opacity: 0.85;
-        }
-
-        .input-area {
-            display: flex;
-            padding: 16px 24px;
-            background: #f8f9fa;
-            border-top: 1px solid #eee;
-            gap: 12px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 10;
-        }
-
-        #message {
-            flex: 1;
-            min-height: 48px;
-            padding: 12px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 30px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.25s ease;
-            background: white;
-        }
-
-        #message:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-        }
-
-        #message::placeholder {
-            color: #6c757d;
-            opacity: 0.7;
-        }
-
-        button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0 28px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            height: 48px;
-            white-space: nowrap;
-        }
-
-        button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.25);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .chat-header h1 {
-                font-size: 1.25rem;
-            }
-            .chat-header h1::before {
-                font-size: 1.25rem;
-            }
-            #messages {
-                padding: 16px 20px;
-                gap: 12px;
-            }
-            .message {
-                max-width: 90%;
-                padding: 12px 16px;
-            }
-            .input-area {
-                padding: 14px 20px;
-                gap: 10px;
-            }
-            #message {
-                padding: 10px 18px;
-                font-size: 0.95rem;
-                min-height: 44px;
-            }
-            button {
-                padding: 0 24px;
-                font-size: 0.95rem;
-                height: 44px;
-            }
-        }
-
-        /* Prevent text selection on UI elements */
-        .chat-header, .input-area, button {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>TafaTafaAI</h1>
-        </div>
-        <div id="messages"></div>
-        <div class="input-area">
-            <input type="text" id="message" placeholder="Posez votre question...">
-            <button onclick="sendMessage()">Envoyer</button>
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-4 flex justify-between items-center">
+        <h1 class="flex items-center gap-3 text-xl font-semibold">
+            <span class="text-[#bada55]">Tafa</span>Tafa
+        </h1>
+        <div class="auth-links text-sm flex items-center gap-2">
+            {% if user.is_authenticated %}
+                Bonjour, {{ user.username }}! <a href="{% url 'logout' %}" class="btn-disconnect hover:underline">Déconnexion</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="hover:underline">Connexion</a> |
+                <a href="{% url 'register' %}" class="hover:underline">Inscription</a>
+            {% endif %}
         </div>
     </div>
+    <div id="messages" class="flex-1 overflow-y-auto p-6 bg-gray-50 space-y-4">
+        {# Messages will be injected by JavaScript #}
+    </div>
+    <div class="input-area flex p-6 bg-gray-100 border-t gap-3">
+        <input type="text" id="message" placeholder="Posez votre question..." class="flex-1 min-h-[48px] px-5 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 bg-white" />
+        <button onclick="sendMessage()" class="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-dark transition-all duration-200 flex items-center gap-2">
+            Envoyer
+        </button>
+    </div>
+</div>
 
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
         }
+        return cookieValue;
+    }
 
-        async function sendMessage() {
-            const input = document.getElementById("message");
-            const text = input.value.trim();
-            if (!text) return;
+    async function sendMessage() {
+        const input = document.getElementById("message");
+        const text = input.value.trim();
+        if (!text) return;
 
-            const messages = document.getElementById("messages");
-            messages.innerHTML += `<div class="message user"><b>Vous :</b> ${text}</div>`;
-            input.value = "";
+        const messages = document.getElementById("messages");
 
-            const formData = new FormData();
-            formData.append("message", text);
+        // Add user message
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'message user max-w-[85%] ms-auto p-4 bg-blue-50 text-blue-800 rounded-br-[6px] rounded-bl-[16px] rounded-tl-[16px] rounded-tr-[16px] animate-fadeIn';
+        userMessageDiv.innerHTML = `<b>Vous :</b> ${text.replace(/\n/g, '<br>')}`;
+        messages.appendChild(userMessageDiv);
+        input.value = "";
 
-            const response = await fetch("/api/chat/", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken")
-                },
-                body: formData
-            });
+        const formData = new FormData();
+        formData.append("message", text);
 
-            const data = await response.json();
-            messages.innerHTML += `<div class="message bot"><b>TafaTafa :</b> ${data.answer}</div>`;
-            messages.scrollTop = messages.scrollHeight;
-
-            // Focus back on input after sending
-            input.focus();
-        }
-
-        // Focus on input when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('message').focus();
+        const response = await fetch("/api/chat/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: formData
         });
 
-        // Handle Enter key
-        document.getElementById('message').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
+        const data = await response.json();
+
+        // Create bot message container
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'message bot max-w-[85%] p-4 bg-white text-gray-800 rounded-bl-[6px] rounded-br-[16px] rounded-tl-[16px] rounded-tr-[16px] animate-fadeIn';
+        botMessageDiv.innerHTML = '<b>TafaTafa :</b> ';
+
+        // Create typewriter span
+        const typewriterSpan = document.createElement('span');
+        typewriterSpan.className = 'typewriter-text';
+        botMessageDiv.appendChild(typewriterSpan);
+        messages.appendChild(botMessageDiv);
+
+        // Typewriter effect
+        const answer = data.answer;
+        let i = 0;
+
+        function typeWriter() {
+            if (i < answer.length) {
+                const char = answer.charAt(i);
+                if (char === '\n') {
+                    // Add a line break for newlines
+                    const br = document.createElement('br');
+                    typewriterSpan.appendChild(br);
+                } else if (char === '|') {
+                    // Replace '|' with a line break and remove the character
+                    const br = document.createElement('br');
+                    typewriterSpan.appendChild(br);
+                } else if (char === '_' || char === '*' || char === '`' || char === '~') {
+                    // Remove common special characters used for markdown emphasis
+                    // Skip displaying these characters
+                } else {
+                    // For other characters, append as text
+                    typewriterSpan.textContent += char;
+                }
+                i++;
+                setTimeout(typeWriter, 5);
+            } else {
+                // Scroll to bottom when done typing
+                messages.scrollTop = messages.scrollHeight;
+                // Remove the blinking cursor
+                typewriterSpan.classList.add('finished');
             }
-        });
-    </script>
-</body>
-</html>
+        }
+
+        typeWriter();
+
+        // Focus back on input after sending
+        input.focus();
+    }
+
+    // Focus on input when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('message').focus();
+    });
+
+    // Handle Enter key
+    document.getElementById('message').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeInUp 0.3s ease-out;
+    }
+</style>
+{% endblock %}
