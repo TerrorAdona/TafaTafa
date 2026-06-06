@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Vocal Simple</title>
+</head>
+<body>
+    <h1>Test de la reconnaissance vocale</h1>
+    <button id="startBtn">Commencer l'écoute</button>
+    <p id="status">Cliquez sur le bouton et parlez</p>
+    <p id="result"></p>
+
+    <script>
+        document.getElementById('startBtn').addEventListener('click', function() {
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+
+            // Vérifier la disponibilité
+            if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+                status.textContent = 'Votre navigateur ne supporte pas la reconnaissance vocale';
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognizer = new SpeechRecognition();
+
+            recognizer.lang = 'fr-FR';
+            recognizer.interimResults = false;
+
+            status.textContent = 'Écoute en cours... Parlez maintenant';
+            this.disabled = true;
+
+            recognizer.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                result.textContent = 'Vous avez dit: "' + transcript + '"';
+                status.textContent = 'Écoute terminée';
+                document.getElementById('startBtn').disabled = false;
+            };
+
+            recognizer.onend = function() {
+                status.textContent = 'Écoute terminée';
+                document.getElementById('startBtn').disabled = false;
+            };
+
+            recognizer.onerror = function(event) {
+                status.textContent = 'Erreur: ' + event.error;
+                document.getElementById('startBtn').disabled = false;
+            };
+
+            try {
+                recognizer.start();
+            } catch(e) {
+                status.textContent = 'Erreur de démarrage: ' + e.message;
+                document.getElementById('startBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

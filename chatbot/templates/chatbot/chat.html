@@ -20,6 +20,9 @@
     </div>
     <div class="input-area flex p-6 bg-gray-100 border-t gap-3">
         <input type="text" id="message" placeholder="Posez votre question..." class="flex-1 min-h-[48px] px-5 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 bg-white" />
+        <button type="button" id="voiceBtn" class="bg-primary text-white px-4 py-3 rounded-xl font-medium hover:bg-primary-dark transition-all duration-200 flex items-center gap-2 ml-2" title="Entrée vocale">
+            🎤
+        </button>
         <button onclick="sendMessage()" class="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-dark transition-all duration-200 flex items-center gap-2">
             Envoyer
         </button>
@@ -127,6 +130,95 @@
     document.getElementById('message').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             sendMessage();
+        }
+    });
+
+    // Voice recognition functionality - Direct and simple approach
+    document.getElementById('voiceBtn').addEventListener('click', function() {
+        const input = document.getElementById('message');
+        const voiceButton = this;
+
+        // Vérifier la disponibilité de l'API de reconnaissance vocale
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            alert('Votre navigateur ne prend pas en charge la reconnaissance vocale. Veuillez utiliser Chrome ou un navigateur compatible.');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        // Configuration de la reconnaissance
+        recognition.lang = 'fr-FR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // Gestion du début de la reconnaissance
+        recognition.onstart = function() {
+            voiceButton.style.backgroundColor = '#ff5722';
+            voiceButton.title = 'Écoute en cours...';
+            voiceButton.innerHTML = '🔴';
+            input.placeholder = 'Parlez maintenant...';
+        };
+
+        // Gestion des résultats - La partie cruciale
+        recognition.onresult = function(event) {
+            // S'assurer qu'il y a bien un résultat
+            if (event.results.length > 0) {
+                // Prendre la transcription la plus probable
+                const transcript = event.results[0][0].transcript;
+
+                // Mettre directement dans le champ de saisie
+                input.value = transcript;
+
+                // S'assurer que le champ a le focus
+                input.focus();
+
+                // Forcer la mise à jour en déclenchant les événements
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Arrêter la reconnaissance après avoir reçu un résultat
+            recognition.stop();
+        };
+
+        // Gestion de la fin
+        recognition.onend = function() {
+            voiceButton.style.backgroundColor = '';
+            voiceButton.title = 'Entrée vocale';
+            voiceButton.innerHTML = '🎤';
+            input.placeholder = 'Posez votre question...';
+        };
+
+        // Gestion des erreurs
+        recognition.onerror = function(event) {
+            voiceButton.style.backgroundColor = '';
+            voiceButton.title = 'Entrée vocale';
+            voiceButton.innerHTML = '🎤';
+            input.placeholder = 'Posez votre question...';
+
+            let message = 'Erreur de reconnaissance vocale';
+            if (event.error === 'not-allowed') {
+                message = 'Permission du microphone refusée. Veuillez autoriser l\'accès au microphone dans votre navigateur.';
+            } else if (event.error === 'audio-capture') {
+                message = 'Aucun microphone détecté. Veuillez vérifier votre matériel.';
+            } else if (event.error === 'not-supported') {
+                message = 'Cette fonctionnalité n\'est pas supportée sur ce navigateur.';
+            } else {
+                message = 'Erreur de reconnaissance: ' + event.error;
+            }
+            alert(message);
+        };
+
+        // Démarrer la reconnaissance avec gestion d'erreur
+        try {
+            recognition.start();
+        } catch (e) {
+            voiceButton.style.backgroundColor = '';
+            voiceButton.title = 'Entrée vocale';
+            voiceButton.innerHTML = '🎤';
+            input.placeholder = 'Posez votre question...';
+            alert('Impossible de démarrer la reconnaissance vocale: ' + e.message);
         }
     });
 </script>
