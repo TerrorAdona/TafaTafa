@@ -173,9 +173,12 @@
                 // S'assurer que le champ a le focus
                 input.focus();
 
-                // Forcer la mise à jour en déclenchant les événements
+                // Forcer la mise à jour en déclençant les événements
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
+
+                // Envoyer automatiquement le message après la saisie vocale
+                sendMessage();
             }
 
             // Arrêter la reconnaissance après avoir reçu un résultat
