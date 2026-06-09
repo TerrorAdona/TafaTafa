@@ -4,7 +4,7 @@ import os
 load_dotenv()  # Load environment variables from .env file
 
 # Clé API GROQ
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

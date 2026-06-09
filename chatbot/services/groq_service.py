@@ -1,6 +1,9 @@
 from openai import OpenAI
 from django.conf import settings
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 client = OpenAI(
     api_key=settings.GROQ_API_KEY,
@@ -27,12 +30,24 @@ def _clean_markdown(text: str) -> str:
 
 
 def ask_groq(message):
+    try:
+        # Using chat.completions for more standard response structure
+        # Trying mixtral-8x7b-32768 as Llama models may not be available
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[
+                {"role": "user", "content": message}
+            ],
+            max_tokens=1024,
+            temperature=0.7,
+            stream=False
+        )
 
-    response = client.responses.create(
-        model="openai/gpt-oss-20b",
-        input=message,
-    )
-
-    raw_answer = response.output_text
-    cleaned_answer = _clean_markdown(raw_answer)
-    return cleaned_answer
+        # Extract text from response
+        raw_answer = response.choices[0].message.content
+        cleaned_answer = _clean_markdown(raw_answer)
+        return cleaned_answer
+    except Exception as e:
+        logger.error(f"Error calling Groq API: {str(e)}")
+        # Re-raise to let the view handle the error response
+        raise
